@@ -1,3 +1,5 @@
+const [anotacoes, setAnotacoes] = useState([]);
+
 function criarAnotacao() {
     const titulo = document.getElementById('titulo').value;
     const texto = document.getElementById('texto').value;
@@ -7,38 +9,48 @@ function criarAnotacao() {
         return;
     }
 
-    const novaAnotacao = `
-        <div class="anotacao">
-            <div class="opcoes">
-                <h2 class="titulo_ann">${titulo}</h2>
+    const novaAnotacao = {
+        titulo: titulo,
+        texto: texto
+    };
+
+    setAnotacoes([...anotacoes, novaAnotacao]);
+
+    document.getElementById('tituloCapitulo').value = '';
+    document.getElementById('texto').value = '';
+}
+
+function editarAnotacao(index) {
+    const novaListaAnotacoes = [...anotacoes];
+    const anotacao = novaListaAnotacoes[index];
+
+    document.getElementById('titulo').value = anotacao.titulo;
+    document.getElementById('texto').value = anotacao.texto;
+
+    novaListaAnotacoes.splice(index, 1);
+    setAnotacoes(novaListaAnotacoes);
+}
+
+function excluirAnotacao(index) {
+    const novaListaAnotacoes = [...anotacoes];
+    novaListaAnotacoes.splice(index, 1);
+    setAnotacoes(novaListaAnotacoes);
+}
+
+
+{
+    <section className={estilo.anotacoes}>
+    <h1>Anotações criadas</h1>
+    {anotacoes.map((anotacao, index) => (
+        <div className={estilo.anotacao} key={index}>
+            <div className={estilo.opcoes}>
                 <div>
-                    <button onclick="editarAnotacao(this)">Editar</button>
-                    <button onclick="excluirAnotacao(this)">Excluir</button>
+                    <button onClick={() => editarAnotacao(index)}>Editar</button>
+                    <button onClick={() => excluirAnotacao(index)}>Excluir</button>
                 </div>
             </div>
-            <p>${texto}</p>
+            <p>{anotacao.texto}</p>
         </div>
-    `;
-
-    document.querySelector('.anotacoes').innerHTML += novaAnotacao;
-
-    document.getElementById('titulo').value = '';
-    document.getElementById('texto').value = '';
-
-}
-
-function editarAnotacao(botaoEditar) {
-    const anotacao = botaoEditar.parentElement.parentElement.parentElement;
-    const titulo = anotacao.querySelector('.titulo_ann').textContent;
-    const texto = anotacao.querySelector('p').textContent;
-
-    document.getElementById('titulo').value = titulo;
-    document.getElementById('texto').value = texto;
-
-    anotacao.remove();
-}
-
-function excluirAnotacao(botaoExcluir) {
-    const anotacao = botaoExcluir.parentElement.parentElement.parentElement;
-    anotacao.remove();
+    ))}
+    </section>
 }
