@@ -6,6 +6,8 @@ function Main() {
     const [areaAtiva, setAreaAtiva] = useState('livros');
     const [livroAtual, setLivroAtual] = useState(null);
     const [capituloAtual, setCapituloAtual] = useState(null);
+    const [indiceEdicaoLivro, setIndiceEdicaoLivro] = useState(null);
+    const [indiceEdicaoCapitulo, setIndiceEdicaoCapitulo] = useState(null);
 
     function criarLivro() {
         let titulo = document.getElementById('tituloLivro').value;
@@ -15,22 +17,26 @@ function Main() {
             return;
         }
 
-        const novoLivro = {
-            titulo: titulo,
-            capitulos: []
-        };
+        if (indiceEdicaoLivro !== null) {
+            const novosLivros = [...livros];
+            novosLivros[indiceEdicaoLivro].titulo = titulo;
+            setLivros(novosLivros);
+            setIndiceEdicaoLivro(null);
+        } else {
+            const novoLivro = {
+                titulo: titulo,
+                capitulos: []
+            };
+            setLivros([...livros, novoLivro]);
+        }
 
-        setLivros([...livros, novoLivro]);
         document.getElementById('tituloLivro').value = '';
     }
 
     function editarLivro(index) {
-        let livro = livros[index];
+        const livro = livros[index];
         document.getElementById('tituloLivro').value = livro.titulo;
-
-        let novosLivros = [...livros];
-        novosLivros.splice(index, 1);
-        setLivros(novosLivros);
+        setIndiceEdicaoLivro(index);
     }
 
     function apagarLivro(index) {
@@ -52,14 +58,20 @@ function Main() {
             return;
         }
 
-        const novoCapitulo = {
-            nome: nome,
-            texto: ''
-        };
+        let livro = { ...livroAtual };
+        if (indiceEdicaoCapitulo !== null) {
+            livro.capitulos[indiceEdicaoCapitulo].nome = nome;
+            setIndiceEdicaoCapitulo(null);
+        } else {
+            const novoCapitulo = {
+                nome: nome,
+                texto: ''
+            };
+            livro.capitulos.push(novoCapitulo);
+        }
 
         let livrosAtualizados = [...livros];
-        let livro = livrosAtualizados[livros.indexOf(livroAtual)];
-        livro.capitulos.push(novoCapitulo);
+        livrosAtualizados[livros.indexOf(livroAtual)] = livro;
         setLivros(livrosAtualizados);
         setLivroAtual(livro);
 
@@ -69,16 +81,17 @@ function Main() {
     function editarCapitulo(index) {
         let capitulo = livroAtual.capitulos[index];
         document.getElementById('tituloCapitulo').value = capitulo.nome;
-
-        let livro = { ...livroAtual };
-        livro.capitulos.splice(index, 1);
-        setLivroAtual(livro);
+        setIndiceEdicaoCapitulo(index);
     }
 
     function apagarCapitulo(index) {
         let livro = { ...livroAtual };
         livro.capitulos.splice(index, 1);
         setLivroAtual(livro);
+
+        let livrosAtualizados = [...livros];
+        livrosAtualizados[livros.indexOf(livroAtual)] = livro;
+        setLivros(livrosAtualizados);
     }
 
     function selecionarCapitulo(index) {
@@ -96,6 +109,10 @@ function Main() {
         setLivroAtual(livro);
         setCapituloAtual(capitulo);
         document.getElementById('texto').disabled = true;
+
+        let livrosAtualizados = [...livros];
+        livrosAtualizados[livros.indexOf(livroAtual)] = livro;
+        setLivros(livrosAtualizados);
     }
 
     function editarTexto() {
@@ -160,7 +177,6 @@ function Main() {
                     <button onClick={() => setAreaAtiva('capitulos')} className={estilo.voltar}>Voltar</button>
                 </header>
                 <h1>{capituloAtual.nome}</h1>
-                <label className={estilo.nomeDoCapitulo} htmlFor="texto">Texto do capítulo</label>
                 <textarea defaultValue={capituloAtual.texto} disabled className={estilo.texto} id="texto" cols="30" rows="25"></textarea>
                 <div>
                     <button onClick={editarTexto} className={estilo.salvar}>Editar</button>

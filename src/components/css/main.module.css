@@ -102,6 +102,15 @@
     background-color: #da341e;
 }
 
+.voltar {
+    width: 50px;
+    height: max-content;
+    padding: 5px;
+    border-radius: 10px;
+    margin: 5px 0 10px 0;
+    box-shadow: 2px 2px 5px #0000007a;
+}
+
 .lbTituloLivro {
     font-size: 1.5rem;
     font-weight: bold;
