@@ -1,196 +1,86 @@
 import React, { useState } from "react";
-import estilo from "./css/main.module.css";
+import RenderLivros from "./Livros";
+import RenderCapitulos from "./Capitulos";
+import RenderTexto from "./Textos";
+import Login from "./User/Login";
+import Cadastro from "./User/Cadastro";
 
 function Main() {
     const [livros, setLivros] = useState([]);
-    const [areaAtiva, setAreaAtiva] = useState('livros');
+    const [areaAtiva, setAreaAtiva] = useState('login'); // login como área inicial
     const [livroAtual, setLivroAtual] = useState(null);
     const [capituloAtual, setCapituloAtual] = useState(null);
     const [indiceEdicaoLivro, setIndiceEdicaoLivro] = useState(null);
     const [indiceEdicaoCapitulo, setIndiceEdicaoCapitulo] = useState(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [usersCadastrados, setUsersCadastrados] = useState([]);
 
-    function criarLivro() {
-        let titulo = document.getElementById('tituloLivro').value;
+    const handleLogin = () => {
+        setIsAuthenticated(true);
+        setAreaAtiva('livros');
+    };
 
-        if (titulo.trim() === '') {
-            alert('Por favor, informe o título do livro.');
-            return;
-        }
-
-        if (indiceEdicaoLivro !== null) {
-            const novosLivros = [...livros];
-            novosLivros[indiceEdicaoLivro].titulo = titulo;
-            setLivros(novosLivros);
-            setIndiceEdicaoLivro(null);
-        } else {
-            const novoLivro = {
-                titulo: titulo,
-                capitulos: []
-            };
-            setLivros([...livros, novoLivro]);
-        }
-
-        document.getElementById('tituloLivro').value = '';
-    }
-
-    function editarLivro(index) {
-        const livro = livros[index];
-        document.getElementById('tituloLivro').value = livro.titulo;
-        setIndiceEdicaoLivro(index);
-    }
-
-    function apagarLivro(index) {
-        let novosLivros = [...livros];
-        novosLivros.splice(index, 1);
-        setLivros(novosLivros);
-    }
-
-    function selecionarLivro(index) {
-        setLivroAtual(livros[index]);
-        setAreaAtiva('capitulos');
-    }
-
-    function criarCapitulo() {
-        let nome = document.getElementById('tituloCapitulo').value;
-
-        if (nome.trim() === '') {
-            alert('Por favor, informe o nome do capítulo.');
-            return;
-        }
-
-        let livro = { ...livroAtual };
-        if (indiceEdicaoCapitulo !== null) {
-            livro.capitulos[indiceEdicaoCapitulo].nome = nome;
-            setIndiceEdicaoCapitulo(null);
-        } else {
-            const novoCapitulo = {
-                nome: nome,
-                texto: ''
-            };
-            livro.capitulos.push(novoCapitulo);
-        }
-
-        let livrosAtualizados = [...livros];
-        livrosAtualizados[livros.indexOf(livroAtual)] = livro;
-        setLivros(livrosAtualizados);
-        setLivroAtual(livro);
-
-        document.getElementById('tituloCapitulo').value = '';
-    }
-
-    function editarCapitulo(index) {
-        let capitulo = livroAtual.capitulos[index];
-        document.getElementById('tituloCapitulo').value = capitulo.nome;
-        setIndiceEdicaoCapitulo(index);
-    }
-
-    function apagarCapitulo(index) {
-        let livro = { ...livroAtual };
-        livro.capitulos.splice(index, 1);
-        setLivroAtual(livro);
-
-        let livrosAtualizados = [...livros];
-        livrosAtualizados[livros.indexOf(livroAtual)] = livro;
-        setLivros(livrosAtualizados);
-    }
-
-    function selecionarCapitulo(index) {
-        setCapituloAtual(livroAtual.capitulos[index]);
-        setAreaAtiva('texto');
-    }
-
-    function salvarTexto() {
-        let novoTexto = document.getElementById('texto').value;
-        let capitulo = { ...capituloAtual, texto: novoTexto };
-
-        let livro = { ...livroAtual };
-        livro.capitulos[livro.capitulos.indexOf(capituloAtual)] = capitulo;
-
-        setLivroAtual(livro);
-        setCapituloAtual(capitulo);
-        document.getElementById('texto').disabled = true;
-
-        let livrosAtualizados = [...livros];
-        livrosAtualizados[livros.indexOf(livroAtual)] = livro;
-        setLivros(livrosAtualizados);
-    }
-
-    function editarTexto() {
-        document.getElementById('texto').disabled = false;
-    }
-
-    function renderLivros() {
-        return (
-            <section className={estilo.livros}>
-                <header className={estilo.criarNome}>
-                    <label className={estilo.lbTituloLivro} htmlFor="tituloLivro">Título do livro</label>
-                    <input className={estilo.titulo} type="text" id="tituloLivro" />
-                    <button onClick={criarLivro} className={estilo.salvar}>Salvar</button>
-                </header>
-
-                <section className={estilo.minhasCriacoes}>
-                    <h1>Meus livros</h1>
-                    {livros.map((livro, index) => (
-                        <div className={estilo.livro} key={index}>
-                            <div>
-                                <button onClick={() => editarLivro(index)} className={estilo.editar}>Alterar título</button>
-                                <button onClick={() => apagarLivro(index)} className={estilo.apagar}>Excluir livro</button>
-                            </div>
-                            <h2 onClick={() => selecionarLivro(index)}>{livro.titulo}</h2>
-                        </div>
-                    ))}
-                </section>
-            </section>
-        );
-    }
-
-    function renderCapitulos() {
-        return (
-            <section className={estilo.capitulos}>
-                <header className={estilo.criarNome}>
-                    <button onClick={() => setAreaAtiva('livros')} className={estilo.voltar}>Voltar</button>
-                    <label className={estilo.lbTituloLivro} htmlFor="tituloCapitulo">Nome do capítulo</label>
-                    <input className={estilo.titulo} type="text" id="tituloCapitulo" />
-                    <button onClick={criarCapitulo} className={estilo.salvar}>Salvar</button>
-                </header>
-
-                <section className={estilo.minhasCriacoes}>
-                    <h1>Meus capítulos</h1>
-                    {livroAtual.capitulos.map((capitulo, index) => (
-                        <div className={estilo.livro} key={index}>
-                            <div>
-                                <button onClick={() => editarCapitulo(index)} className={estilo.editar}>Alterar capítulo</button>
-                                <button onClick={() => apagarCapitulo(index)} className={estilo.apagar}>Excluir capítulo</button>
-                            </div>
-                            <h2 onClick={() => selecionarCapitulo(index)}>{capitulo.nome}</h2>
-                        </div>
-                    ))}
-                </section>
-            </section>
-        );
-    }
-
-    function renderTexto() {
-        return (
-            <main className={estilo.textoCompleto}>
-                <header>
-                    <button onClick={() => setAreaAtiva('capitulos')} className={estilo.voltar}>Voltar</button>
-                </header>
-                <h1>{capituloAtual.nome}</h1>
-                <textarea defaultValue={capituloAtual.texto} disabled className={estilo.texto} id="texto" cols="30" rows="25"></textarea>
-                <div>
-                    <button onClick={editarTexto} className={estilo.salvar}>Editar</button>
-                    <button onClick={salvarTexto} className={estilo.salvar}>Salvar</button>
-                </div>
-            </main>
-        );
-    }
+    const handleLogout = () => {
+        setIsAuthenticated(false);
+        setAreaAtiva('login');
+    };
 
     return (
         <>
-            {areaAtiva === 'livros' && renderLivros()}
-            {areaAtiva === 'capitulos' && renderCapitulos()}
-            {areaAtiva === 'texto' && renderTexto()}
+            {!isAuthenticated ? (
+                areaAtiva === 'login' ? (
+                    <Login
+                        setAreaAtiva={setAreaAtiva}
+                        handleLogin={handleLogin}
+                        usersCadastrados={usersCadastrados}
+                    />
+                ) : (
+                    <Cadastro
+                        setAreaAtiva={setAreaAtiva}
+                        usersCadastrados={usersCadastrados}
+                        setUsersCadastrados={setUsersCadastrados}
+                    />
+                )
+            ) : (
+                <>
+                    {areaAtiva === 'livros' && (
+                        <RenderLivros
+                            livros={livros}
+                            setLivros={setLivros}
+                            setLivroAtual={setLivroAtual}
+                            setAreaAtiva={setAreaAtiva}
+                            indiceEdicaoLivro={indiceEdicaoLivro}
+                            setIndiceEdicaoLivro={setIndiceEdicaoLivro}
+                        />
+                    )}
+
+                    {areaAtiva === 'capitulos' && (
+                        <RenderCapitulos
+                            livros={livros}
+                            setLivros={setLivros}
+                            livroAtual={livroAtual}
+                            setLivroAtual={setLivroAtual}
+                            setCapituloAtual={setCapituloAtual}
+                            setAreaAtiva={setAreaAtiva}
+                            indiceEdicaoCapitulo={indiceEdicaoCapitulo}
+                            setIndiceEdicaoCapitulo={setIndiceEdicaoCapitulo}
+                        />
+                    )}
+
+                    {areaAtiva === 'texto' && (
+                        <RenderTexto
+                            livros={livros}
+                            setLivros={setLivros}
+                            livroAtual={livroAtual}
+                            setLivroAtual={setLivroAtual}
+                            capituloAtual={capituloAtual}
+                            setCapituloAtual={setCapituloAtual}
+                            setAreaAtiva={setAreaAtiva}
+                        />
+                    )}
+                    <button onClick={handleLogout}>Logout</button>
+                </>
+            )}
         </>
     );
 }
